@@ -1,19 +1,74 @@
-
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Contact List{% endblock %}
 
 {% block content %}
-<div class="row">
-    <h1>Contact List</h1><br/>
-	
+<div class="container mt-4">
+    <div class="row">
+        <h1>Contact List</h1><br/>
+    </div>
+    <div class="row mt-3">
+        <input type="text" id="search-bar" placeholder="Search...">
+        <button id="search-button" class="btn btn-primary">Search</button>
+    </div>
+</div>
+<div class="container mt-4">
+    <div class="row mt-3">
+        <a href="{% url 'customer_detail' %}" class="btn btn-success">Add Customer</a>
+    </div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Progress</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contact in contacts %}
+                <tr class="customer-row" data-customerid="{{ contact.customer_id }}">
+                    <td>{{ contact.customer_id }}</td>
+                    <td>{{ contact.first_name }}</td>
+                    <td>{{ contact.last_name }}</td>
+                    <td>{{ contact.phone }}</td>
+                    <td>{{ contact.email }}</td>
+                    <td>{{ contact.progress }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
+    <div class="pagination justify-content-center">
+        <span class="step-links">
+            {% if contacts.has_previous %}
+                <a href="?page=1" class="btn btn-secondary">&laquo; First</a>
+                <a href="?page={{ contacts.previous_page_number }}" class="btn btn-secondary">Previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ contacts.number }} of {{ contacts.paginator.num_pages }}.
+            </span>
+
+            {% if contacts.has_next %}
+                <a href="?page={{ contacts.next_page_number }}" class="btn btn-secondary">Next</a>
+                <a href="?page={{ contacts.paginator.num_pages }}" class="btn btn-secondary">Last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
 </div>
-<div class= "row">
-    <ul>
-        {% for contact in contacts %}
-            <li>{{ contact.first_name }} {{ contact.last_name }} - {{ contact.email }}</li>
-        {% endfor %}
-    </ul>
-</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('.customer-row');
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+                const customerId = row.getAttribute('data-customerid');
+                window.location.href = `{% url 'customer_detail' %}?id=${customerId}`;
+            });
+        });
+    });
+</script>
 {% endblock %}
