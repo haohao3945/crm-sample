@@ -7,3 +7,6 @@ def contact_list(request):
 
 def dashboard(request):
     return render(request, 'crm/dashboard.html')
+
+def order_data(request):
+    return render(request, 'crm/order_data.html')

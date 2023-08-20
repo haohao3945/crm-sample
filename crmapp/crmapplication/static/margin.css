@@ -1,0 +1,16 @@
+.navbar-nav li {
+    display: inline-block; /* or inline */
+    /* ... other styles ... */
+}
+
+.nav-link-separator {
+    display: inline-block; /* or inline */
+    margin: auto;
+	padding-right:10px;
+    color: #333;
+}
+@media (max-width: 767px) {
+    .hide-on-collapse {
+        display: none;
+    }
+}
