@@ -3,7 +3,88 @@
 {% block title %}Order Data{% endblock %}
 
 {% block content %}
-<div class="row">
-    <h1>Purchase made</h1>
+<div class="container mt-4">
+    <div class="row">
+        <h1>Order List</h1><br/>
+    </div>
+    <div class="row mt-3">
+        <input type="text" id="search-bar" placeholder="Search...">&nbsp&nbsp&nbsp
+        <button id="search-button" class="sbtn btn-secondary">Search</button>
+    </div>
 </div>
+<div class="container mt-4">
+    <div class="row mt-3">
+        <a href="{% url 'customer_detail' %}" class="btn btn-secondary">Add Order</a>
+    </div>
+	<br/>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>notice_to_consider</th>
+				<th>Country of customer</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr class="order-row" data-orderid="{{ order.customer_id }}">
+                    <td>{{ order.invoice_id }}</td>
+                    <td>{{ order.invoice_date }}</td>
+                    <td>{{ order.customer }}</td>
+                    <td>{{ order.notice_to_consider }}</td>
+					<td>{{ order.country }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination justify-content-center">
+        <span class="step-links">
+            {% if orders.has_previous %}
+                <a href="?page=1" class="btn btn-secondary">&laquo; First</a>
+                <a href="?page={{ orders.previous_page_number }}" class="btn btn-secondary">Previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ orders.number }} of {{ orders.paginator.num_pages }}.
+            </span>
+
+            {% if orders.has_next %}
+                <a href="?page={{ orders.next_page_number }}" class="btn btn-secondary">Next</a>
+                <a href="?page={{ orders.paginator.num_pages }}" class="btn btn-secondary">Last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+		// For customer click order row
+        const rows = document.querySelectorAll('.order-row');
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+                const OrderId = row.getAttribute('data-orderid');
+                window.location.href = `{% url 'customer_detail' %}?id=${OrderId}`;
+            });
+        });
+		
+		// For search bar
+		const searchBar = document.getElementById('search-bar');
+        const searchButton = document.getElementById('search-button');
+        const tableBody = document.getElementById('table-body');
+
+        searchButton.addEventListener('click', function() {
+            const searchText = searchBar.value.toLowerCase();
+            rows.forEach(row => {
+                const rowContent = row.textContent.toLowerCase();
+                if (rowContent.includes(searchText)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

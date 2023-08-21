@@ -15,7 +15,11 @@ def dashboard(request):
     return render(request, 'crm/dashboard.html')
 
 def order_data(request):
-    return render(request, 'crm/order_data.html')
+    order = Invoice.objects.all()
+    paginator = Paginator(order, 10)  # Show 10 order per page
+    page = request.GET.get('page')
+    order = paginator.get_page(page)
+    return render(request, 'crm/order_data.html',{'orders':order})
     
 def customer_detail(request):
  #   if request.method == 'POST':
