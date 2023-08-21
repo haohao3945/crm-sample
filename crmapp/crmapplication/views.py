@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator, Page
 from django.shortcuts import render,get_object_or_404,redirect
-from .forms import CustomerForm  # Import your customer form
+from .forms import CustomerForm,InvoiceForm  
 from .models import Customer,Invoice
 from django.db.models import Q
 
@@ -79,30 +79,32 @@ def order_search(request):
             )
     return render(request, 'crm/order_data.html', {'orders': order})
 
+# Function to handle create, update and delete of the customer
 def customer_detail(request):
     customer_id = request.GET.get('id')
     customer = None
     form = None
-    if customer_id:
-        customer = get_object_or_404(Customer, pk=customer_id)
+    
+    if customer_id: # If the customer id exist , note that there is no type input at id, so no handling error
+        customer = get_object_or_404(Customer, pk=customer_id) # If no id, then get 404 error
         form = CustomerForm(instance=customer)
-        if request.method == 'POST':
-            if 'delete' in request.POST:
+        if request.method == 'POST':  # if there are any input
+            if 'delete' in request.POST: # if delete button click
                 customer.delete()
                 return redirect('contact_list')
             else:
-                form = CustomerForm(request.POST, instance=customer)
+                form = CustomerForm(request.POST, instance=customer) # if there is any update
                 if form.is_valid():
                     form.save()
                     customer_id = None  # Clear customer_id after editing
     else:
-        if request.method == 'POST':
+        if request.method == 'POST':   # If user add input
             form = CustomerForm(request.POST)
             if form.is_valid():
                 form.save()
                 return redirect('contact_list')
         else:
-            form = CustomerForm()
+            form = CustomerForm()   # If non of above then display empty form
             
     context = {
         'customer': customer,
@@ -110,3 +112,36 @@ def customer_detail(request):
     }
     
     return render(request, 'crm/customer_detail.html', context)
+    
+# Function to handle create, update and delete of the invoice
+def order_detail(request):
+    order_id = request.GET.get('id')
+    order = None
+    form = None
+    if order_id:  # If the invoice id exist , note that there is no type input at id, so no handling error
+        order = get_object_or_404(Invoice, pk=order_id)  
+        form = InvoiceForm(instance=order)
+        if request.method == 'POST':  
+            if 'delete' in request.POST: # if delete button click
+                order.delete()
+                return redirect('order_data')
+            else:
+                form = InvoiceForm(request.POST, instance=order)# if there is any update
+                if form.is_valid():
+                    form.save()
+                    order_id = None  # Clear order_id after editing
+    else:
+        if request.method == 'POST':          # If user add input
+            form = InvoiceForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('order_data')
+        else:
+            form = InvoiceForm()     # If non of above then display empty form
+            
+    context = {
+        'order': order,
+        'form': form
+    }
+    
+    return render(request, 'crm/order_detail.html', context)

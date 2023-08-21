@@ -18,6 +18,7 @@ class Customer(models.Model):
 class Invoice(models.Model):
     invoice_id = models.AutoField(primary_key=True)
     invoice_date = models.DateField( blank=True)
+    invoice_number = models.CharField(max_length=50, blank=True)
     customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.DO_NOTHING)
     country = models.CharField(max_length=50, blank=True)
     quantity = models.IntegerField( blank=True)
