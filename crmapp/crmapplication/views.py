@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator, Page
-from django.shortcuts import render
-#from .forms import CustomerForm  # Import your customer form
+from django.shortcuts import render,get_object_or_404,redirect
+from .forms import CustomerForm  # Import your customer form
 from .models import Customer,Invoice
 from django.db.models import Q
 
@@ -78,18 +78,35 @@ def order_search(request):
                 Q(notice_to_consider__contains=query)
             )
     return render(request, 'crm/order_data.html', {'orders': order})
-    
+
 def customer_detail(request):
-    print("Request - ", request)
- #   if request.method == 'POST':
- #       form = CustomerForm(request.POST)
+    customer_id = request.GET.get('id')
+    customer = None
+    form = None
+    if customer_id:
+        customer = get_object_or_404(Customer, pk=customer_id)
+        form = CustomerForm(instance=customer)
+        if request.method == 'POST':
+            if 'delete' in request.POST:
+                customer.delete()
+                return redirect('contact_list')
+            else:
+                form = CustomerForm(request.POST, instance=customer)
+                if form.is_valid():
+                    form.save()
+                    customer_id = None  # Clear customer_id after editing
+    else:
+        if request.method == 'POST':
+            form = CustomerForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('contact_list')
+        else:
+            form = CustomerForm()
+            
+    context = {
+        'customer': customer,
+        'form': form
+    }
     
- #   if form.is_valid():
-  #      form.save()
-  #      return redirect('customer_detail')
-  #  else:
-  #      form = CustomerForm()
-    
-   # context = {'form': form, 'add_customer': True}
-    #return render(request, 'customer_detail.html', context)
-    return render(request, 'crm/customer_detail.html')
+    return render(request, 'crm/customer_detail.html', context)
