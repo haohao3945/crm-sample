@@ -7,10 +7,10 @@
     <div class="row">
         <h1>Order List</h1><br/>
     </div>
-    <div class="row mt-3">
-        <input type="text" id="search-bar" placeholder="Search...">&nbsp&nbsp&nbsp
-        <button id="search-button" class="sbtn btn-secondary">Search</button>
-    </div>
+	<form  class="row mt-3" action="{% url 'order_search' %}" method="get">
+		<input type="text" id="search-bar" name="q" placeholder="Search...">&nbsp&nbsp&nbsp
+		<button id="search-button" class="sbtn btn-secondary" type="submit">Search</button>
+	</form>
 </div>
 <div class="container mt-4">
     <div class="row mt-3">
@@ -29,7 +29,7 @@
         </thead>
         <tbody>
             {% for order in orders %}
-                <tr class="order-row" data-orderid="{{ order.customer_id }}">
+                <tr class="order-row" data-orderid="{{ order.invoice_id }}">
                     <td>{{ order.invoice_id }}</td>
                     <td>{{ order.invoice_date }}</td>
                     <td>{{ order.customer }}</td>
@@ -69,22 +69,7 @@
             });
         });
 		
-		// For search bar
-		const searchBar = document.getElementById('search-bar');
-        const searchButton = document.getElementById('search-button');
-        const tableBody = document.getElementById('table-body');
 
-        searchButton.addEventListener('click', function() {
-            const searchText = searchBar.value.toLowerCase();
-            rows.forEach(row => {
-                const rowContent = row.textContent.toLowerCase();
-                if (rowContent.includes(searchText)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
     });
 </script>
 {% endblock %}
