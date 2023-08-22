@@ -3,14 +3,163 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+
+.card{
+	height: 100%; 
+	display: flex; 
+	flex-direction: column; 
+	justify-content: center; 
+	align-items: center;
+}
+.clickable:hover{
+	box-shadow: 3px 3px 1px 1px gray;
+	    cursor: pointer;
+}
+.card-header{
+	width:100%;
+	text-align: center;
+	background-color:white;
+}
+.row{
+	margin-bottom:30px
+}
+</style>
+<div class = "row" style="font-size:24px;font-weight:bold">  &nbsp&nbsp Today is : &nbsp&nbsp <span id= "today" style="font-weight:lighter"> 9 Dec 2021(Assume)</span> </div>
 <div class="row">
-    <div class="col-md-6">
-        <h2>Column 1</h2>
-        <!-- Display relevant data here -->
+    <div id="gototodayorder" class="col-md-6">
+		<div class="card clickable">
+		  <div class="card-header"><h2>Today new transaction</h2></div><br/>
+		  <div class="card-body" ><h1 style="font-size:100px">{{ context.lead_count }}</h1></div>
+		  
+		</div>
     </div>
     <div class="col-md-6">
-        <h2>Column 2</h2>
-        <!-- Display relevant data here -->
+		<div class="card" >
+		  <div class="card-header"><h2>Monthly Sales</h2></div>
+		  <div class="card-body" ><canvas id="sales-chart" width="400" height="200"></canvas></div>
+		  
+		</div>	
+		<p id = "data" style="display:none">{{ context.graph_data}}</p>
     </div>
 </div>
+
+<div class="row justify-content-center">
+	
+    {% for c in context.tracking_count %}
+
+		<div class="card clickable tracking-row" data-squery={{ c.0 }} style="min-height:80px;margin:auto;">
+			<div class="card-header bg-white" style=""><b>{{ c.0 }}</b></div>
+			<div class="card-body">
+				
+                {{ c.1 }}
+			</div>
+		</div>
+
+    {% endfor %}
+	
+</div>
+<div class = "row">
+	<h2>Customer Life Time Value Analysis:</h2>
+
+</div>
+{% verbatim %}
+
+<script>
+	//graph plotting
+    const graphDataElement = document.getElementById("data");
+    const graphData = JSON.parse(graphDataElement.textContent);
+    console.log(graphData);
+    const ctx = document.getElementById('sales-chart').getContext('2d');
+
+	new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: graphData.labels,
+			datasets: [{
+				label: 'Sales Summary',
+				data: graphData.data,
+				borderColor: 'blue',
+				fill: false,
+			}]
+		},
+		options: {
+			scales: {
+				x: {
+					title: {
+						display: true,
+						text: 'Date'
+					}
+				},
+				y: {
+					title: {
+						display: true,
+						text: 'Sales ($)'
+					}
+				}
+			}
+		}
+	});
+	
+	
+
+	
+	// for updating the date
+	const date = new Date();
+	const year = date.getFullYear();
+	const month = (date.getMonth() + 1).toString().padStart(2, '0');
+	const day = date.getDate().toString().padStart(2, '0');
+	const formattedDate = `${year}-${month}-${day}`;
+	//console.log(date);
+	//document.getElementById("today").innerHTML = formattedDate;
+	
+	
+	
+    document.addEventListener('DOMContentLoaded', function() {
+		// For check today order
+		const gettodaysales = document.querySelector('#gototodayorder');
+		gettodaysales.addEventListener('click', function() {
+			window.location.href = '../order_data?q='+document.getElementById("today").textContent;
+		});
+		
+		
+		// For searching purpose 
+		
+        const rows = document.querySelectorAll('.tracking-row');
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+				let keyword;
+                const query = row.getAttribute('data-squery');
+				switch (query) {
+				  case 'Follow':
+					keyword = "After";
+					window.location.href = '../contact_search?q='+ keyword;
+					break;
+				  case 'Following':
+					keyword = "Follow";
+					window.location.href = '../contact_search?q='+ keyword;
+					break;
+				  case 'Closed':
+					keyword = "Close";
+					window.location.href = '../contact_search?q='+ keyword;
+					break;
+				  case 'Give':
+					keyword = "give";
+					window.location.href = '../contact_search?q='+ keyword;
+					break;
+				  default:
+					keyword = "unattend";
+					window.location.href = '../contact_search?q='+ keyword;
+					break;				 
+				}
+                
+            });
+        });
+		
+    });
+</script>
+{% endverbatim %}
+
 {% endblock %}

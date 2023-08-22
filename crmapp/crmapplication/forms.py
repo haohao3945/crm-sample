@@ -17,7 +17,11 @@ class CustomerForm(forms.ModelForm):
             
         }
 
-        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            # If editing an existing record, set the initial value based on database value
+            self.fields['progress'].initial = self.instance.progress       
         
         
 class InvoiceForm(forms.ModelForm):
