@@ -8,6 +8,7 @@ class Customer(models.Model):
     email = models.EmailField( blank=True)
     phone = models.CharField(max_length=20,blank = True)
     progress = models.CharField(max_length = 255,blank=True)
+    notice = models.TextField(blank = True)
     address = models.TextField(blank = True)
     
     def __str__(self):

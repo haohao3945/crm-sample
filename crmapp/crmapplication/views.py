@@ -3,7 +3,26 @@ from django.shortcuts import render,get_object_or_404,redirect
 from .forms import CustomerForm,InvoiceForm  
 from .models import Customer,Invoice
 from django.db.models import Q
+import re
+from datetime import datetime
 
+def validate_date(date_string):
+    formats = [
+        "%d/%m/%Y",
+        "%m/%d/%Y",
+        "%d %b %Y",
+        "%d.%m.%Y",
+        "%m.%d.%Y"
+    ]
+    
+    for format_str in formats:
+        try:
+            date_obj = datetime.strptime(date_string, format_str)
+            return date_obj.strftime('%Y-%m-%d')
+        except ValueError:
+            pass
+    
+    return None
 
 def contact_list(request):
     contacts = Customer.objects.all()
@@ -67,6 +86,9 @@ def order_search(request):
         if normalized_query in MONTH_MAP.values():         
             # Search for invoices by month
             order = Invoice.objects.filter(invoice_date__month=normalized_query)
+        elif validate_date(query):
+            # If it is date, then search by date
+            order = Invoice.objects.filter(invoice_date=validate_date(query))
         else:
             # Perform the regular search
             order = Invoice.objects.filter(
