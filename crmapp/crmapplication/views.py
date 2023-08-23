@@ -13,12 +13,8 @@ from django.db.models import Q
 import re
 from datetime import datetime, timedelta
 import pandas as pd
-from lifetimes.utils import summary_data_from_transaction_data
-from lifetimes import BetaGeoFitter
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import accuracy_score
-from lifetimes.plotting import plot_period_transactions
 import json
+from .analytics_test import analyze_data
 
 
 def validate_date(date_string):
@@ -80,6 +76,16 @@ def contact_search(request):
     contacts = contacts.order_by('first_name')
     return render(request, 'crm/contact_list.html', {'contacts': contacts})
 
+def change_id_to_name(df):
+    # Fetch customer names based on customer IDs
+    customer_ids = df['customer_id'].unique()
+    customer_names = {customer.customer_id: f"{customer.first_name} {customer.last_name}" for customer in Customer.objects.filter(customer_id__in=customer_ids)}
+
+    # Create a new column 'customer_name' and map customer IDs to names
+    df['customer_name'] = df['customer_id'].map(customer_names)
+
+    return df
+    
 
 def dashboard(request):
     # initialize the data
@@ -164,12 +170,38 @@ def dashboard(request):
         ('Give Up Leads', give_up),
     ]
     
-    
+    predict_data = analyze_data()
+    # Convert the dictionaries to DataFrames
+    hot_lead = pd.DataFrame(predict_data['hot_clv']).astype(int)
+    cold_lead = pd.DataFrame(predict_data['cold_clv']).astype(int)
+    high_ticket_lead = pd.DataFrame(predict_data['high_ticket']).astype(int)
+    one_buyer_lead = pd.DataFrame(predict_data['one_buyer']).astype(int)
 
+    # Apply the change_id_to_name function to each DataFrame
+    hot_lead = change_id_to_name(hot_lead)
+    cold_lead = change_id_to_name(cold_lead)
+    high_ticket_lead = change_id_to_name(high_ticket_lead)
+    one_buyer_lead = change_id_to_name(one_buyer_lead)
+
+    hot_lead_count = len(hot_lead)
+    cold_lead_count = len(cold_lead)
+    high_ticket_count = len(high_ticket_lead)
+    one_time_count = len(one_buyer_lead)
+    
+    print(hot_lead,flush=True)
+    #print(dataframe_to_html_table(hot_lead))
     context = {
         'lead_count': count,
         'graph_data': graph_data,
         'tracking_count':results,
+        'one_time_buyer_percentage' :one_time_count,
+        'hot_lead_count' : hot_lead_count,
+        'cold_lead_count' : cold_lead_count,
+        'high_ticket_count':high_ticket_count,
+        "hot_lead": hot_lead.to_dict(orient='records'),
+        "cold_lead": cold_lead.to_dict(orient='records'),
+        "high_ticket_lead": high_ticket_lead.to_dict(orient='records'),
+        "one_buyer_lead": one_buyer_lead.to_dict(orient='records'),
     }
     
     
@@ -215,7 +247,11 @@ def order_search(request):
     if query:
         normalized_query = normalize_query(query)
         
-        if normalized_query in MONTH_MAP.values():         
+        if 'clv' in query:  # Check if 'clv' is present in the query
+            # Clear 'clv' from the query and search only by customer_id
+            customer_id_query = query.replace('clv', '').strip()
+            order = Invoice.objects.filter(customer_id=customer_id_query)
+        elif normalized_query in MONTH_MAP.values():         
             # Search for invoices by month
             order = Invoice.objects.filter(invoice_date__month=normalized_query)
         elif validate_date(query):

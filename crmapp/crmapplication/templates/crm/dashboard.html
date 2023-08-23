@@ -26,6 +26,18 @@
 .row{
 	margin-bottom:30px
 }
+.clvdata,.clvtable{
+	max-height:400px;
+	overflow:scroll;
+}
+.aclick{
+	text-decoration:none;
+	color:black;
+	padding:0;
+	margin:0;
+	width:100;
+	
+}
 </style>
 <div class = "row" style="font-size:24px;font-weight:bold">  &nbsp&nbsp Today is : &nbsp&nbsp <span id= "today" style="font-weight:lighter"> 9 Dec 2021(Assume)</span> </div>
 <div class="row">
@@ -61,9 +73,144 @@
     {% endfor %}
 	
 </div>
-<div class = "row">
-	<h2>Customer Life Time Value Analysis:</h2>
+<div class = "row justify-content-center">
+	<div class="card clickable tracking-clv col-md-3"  style="min-height:80px;margin:auto;">
+	
+		<div class="card-header bg-white" style=""><b>Hot Lead : </b></div>
+		<a href="#hot_lead" class="aclick"><div class="card-body">
+				
+            {{ context.hot_lead_count }}
+		</a></div>
+		
+	</div>	  
+	<div class="card clickable tracking-clv col-md-3"  style="min-height:80px;margin:auto;">
+		<div class="card-header bg-white" style=""><b>Cold Lead : </b></div>
+		<a href="#cold_lead" class="aclick"><div class="card-body">
+				
+            {{ context.cold_lead_count }}
+		</a>
+		</div>
+	</div>
+	<div class="card clickable tracking-clv col-md-3"  style="min-height:80px;margin:auto;">
+		<div class="card-header bg-white" style=""><b>High Ticket Lead : </b></div>
+		<a href="#highticket" class="aclick"><div class="card-body">
+				
+            {{ context.high_ticket_count }}
+			
+		</div></a>
+	</div>
+	<div class="card clickable tracking-clv col-md-3"  style="min-height:80px;margin:auto;">
+		<div class="card-header bg-white" style=""><b>One Time Buyer: </b></div>
+		<a href="#onetime" class="aclick"><div class="card-body">
+				
+            {{ context.one_time_buyer_percentage }} 
+		</div>
+		</a>
+			
+	</div>
+</div>
 
+<p>*The arrangement of table below are based on the ranking of customer based on overall value of order frequency and total sales </p>
+<p>*Click on the client to view their previous order invoice</p>
+<div class="container row clvtable" id="hot_lead">
+	<h2>Hot Lead (Best ranking customer)</h2>
+    <table class="table table-hover clvdata">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Repeat Sales Frequency</th>
+                <th>Active Period</th>
+                <th>Average Repeat Sales Value($)</th>
+                <th>Last Buying (Days ago)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in context.hot_lead %}
+                <tr class="customer-row" data-customerid="{{ row.customer_id }}">
+                    <td>{{ row.customer_name }}</td>
+                    <td>{{ row.Repeat_Sales_Time }}</td>
+                    <td>{{ row.Active_Period }}</td>
+                    <td>{{ row.Average_Repeat_Sales_Value }}</td>
+                    <td>{{ row.Last_Buying }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="container row clvtable" id="cold_lead">
+	<h2>Cold Lead</h2>
+    <table class="table table-hover clvdata">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Repeat Sales Frequency</th>
+                <th>Active Period</th>
+                <th>Average Repeat Sales Value($)</th>
+                <th>Last Buying (Days ago)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in context.cold_lead %}
+                <tr class="customer-row" data-customerid="{{ row.customer_id }}">
+                    <td>{{ row.customer_name }}</td>
+                    <td>{{ row.Repeat_Sales_Time }}</td>
+                    <td>{{ row.Active_Period }}</td>
+                    <td>{{ row.Average_Repeat_Sales_Value }}</td>
+                    <td>{{ row.Last_Buying }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="container row clvtable" id="highticket">
+	<h2>High Ticket Lead</h2>
+    <table class="table table-hover clvdata">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Repeat Sales Frequency</th>
+                <th>Active Period</th>
+                <th>Average Repeat Sales Value($)</th>
+                <th>Last Buying (Days ago)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in context.high_ticket_lead %}
+                <tr class="customer-row" data-customerid="{{ row.customer_id }}">
+                    <td>{{ row.customer_name }}</td>
+                    <td>{{ row.Repeat_Sales_Time }}</td>
+                    <td>{{ row.Active_Period }}</td>
+                    <td>{{ row.Average_Repeat_Sales_Value }}</td>
+                    <td>{{ row.Last_Buying }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="container row clvtable" id="onetime">
+	<h2>One Time Lead</h2>
+    <table class="table table-hover clvdata">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Repeat Sales Frequency</th>
+                <th>Active Period</th>
+                <th>Average Repeat Sales Value($)</th>
+                <th>Last Buying (Days ago)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in context.one_buyer_lead %}
+                <tr class="customer-row" data-customerid="{{ row.customer_id }}">
+                    <td>{{ row.customer_name }}</td>
+                    <td>{{ row.Repeat_Sales_Time }}</td>
+                    <td>{{ row.Active_Period }}</td>
+                    <td>{{ row.Average_Repeat_Sales_Value }}</td>
+                    <td>{{ row.Last_Buying }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% verbatim %}
 
@@ -125,7 +272,7 @@
 		});
 		
 		
-		// For searching purpose 
+		// For tracking searching purpose 
 		
         const rows = document.querySelectorAll('.tracking-row');
         rows.forEach(row => {
@@ -158,6 +305,15 @@
             });
         });
 		
+		
+		// For CLV searching
+        const rowsclv = document.querySelectorAll('.customer-row');
+        rowsclv.forEach(rowclv => {
+            rowclv.addEventListener('click', function() {
+                const customerId = rowclv.getAttribute('data-customerid');
+                window.location.href = '../order_search?q=clv'+customerId+'clv';
+            });
+        });
     });
 </script>
 {% endverbatim %}
