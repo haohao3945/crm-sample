@@ -1,7 +1,10 @@
-from django.urls import path
+from django.urls import path,include
+from django.shortcuts import redirect
 from . import views
 
 urlpatterns = [
+    # Redirect the root URL ("/") to the "/dashboard" URL
+    path('', lambda request: redirect('dashboard/', permanent=True)),
     path('contacts/', views.contact_list, name='contact_list'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('order_data/', views.order_data, name='order_data'),
