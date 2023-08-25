@@ -40,7 +40,9 @@ Explore the different sections like Customer Management, Sales Tracking, and Ana
 2. Manage Data:
 Use the provided features to add, edit, or delete customer records, track sales, and view the statistics on the dashboard.
 
-
+## Sample interface
+![Screenshot](dashboard%20(part%201).png)
+![Screenshot](dashboard%20(part%202).png)
 ## Acknowledgements
 1. Django
 2. Bootstrap
