@@ -26,9 +26,9 @@ The CRM Application is a Customer Relationship Management system developed using
  ```bash
    pip install -r requirements.txt
 ```
-4. **Run the Development server***:
+4. **Run the Development server**:
 ```bash
-Python manage.py runserver
+ython manage.py runserver
 ```
 
 5. Access the application: Open your web browser and go to http://localhost:8000/ to access the application.
